@@ -98,4 +98,58 @@ E =
 
 Questi risultati potrebbero poi essere moltiplicati o ulteriormente trasformati secondo un algoritmo specifico che scegli, rendendo i valori più unici.
 
+ASCII Numbers
+28467, 39213, 24987, 45531, 30874, 46729, 24156, 36518, 47211, 43429,
+38845, 24390, 32761, 42655, 29087, 37842, 23419, 30176, 42103, 48296,
+28314, 40812, 34028, 25896, 47403, 39877, 37596, 34618, 46952, 26178,
+35941, 40087, 23016, 37093, 45214, 28571, 49731, 33450, 39582, 26704,
+48823, 21439, 46815, 28904, 38175, 40963, 24982, 49617, 30586, 46938,
+27540, 38729, 44452, 31796, 40218, 24371, 46023, 49865, 37321, 27380,
+35274, 27654, 32781, 39821, 26309, 45392, 41067, 42208, 33715, 47483,
+35561, 41908, 25132, 49256, 24106, 48734, 47829, 27042, 37298, 23977,
+49362, 43217, 38945, 45109, 28932, 36571, 25740, 43709, 40236, 26185,
+31947, 49792, 27638, 31680, 37406, 30467, 24510, 49021, 21953, 28437,
 
+Character = 12
+
+Criptated Character = 12 * 580 (Key)
+
+Result = 6960
+
+***
+## Criptazione Fase 1 Rivisitata
+Key: 13Cia76
+
+Key converted: 13123098121928341029476 (si taglia a metà e si creano le due key)
+
+Key1: 13123098121
+Key2: 928341029476
+
+
+Frase: Fabriso 
+F -> Key1
+a -> Key1
+b -> Key1
+r -> Key2
+i -> Key2
+s -> Key1
+o -> Key1
+
+Changing frequence based on the 2° number of the Key#
+
+
+Alfabet Idea MrTheCats
+
+key: 8132947298342938423 (si taglia a metà e si creano le due key)
+
+Key Key1 = 813294729
+Key Key2 = 8342938423
+
+A = 65 * 834293842
+
+F -> (65 * 834293842)*813294729 = 44104240968824323170 == (X * Y2) * Y1
+
+- Q = Lettera criptata prima fase
+- Y = Key
+- X = Lettera reale (Non criptata)
+- C = Lettera criptata doppia fase

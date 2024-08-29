@@ -9,8 +9,6 @@
     #include <unistd.h>
 #endif
 
-
-
 #define MaxAlfabet 255 // Number of alphabet character supported
 #define keyLenghtMAX 21 // Max key lenght supported
 
@@ -19,7 +17,7 @@ using namespace std;
 void AlfabetGeneration(int Alfabet[]); // Function to generate the alpabet (BETA)
 void KeyGenerator(char []); // Function to generate the key or make it choose at the u
 void caricaStringa(char [], int); // Text like function to write in array of char
-bool keyValidyCheck(char []); //Check 
+bool keyValidyCheck(char []); // Check 
 
 int main() {
 
@@ -43,7 +41,7 @@ int main() {
     cout << "Key randomica? [y/n]" <<endl;
     KeyGenerator(key);
 
-    cout << "Chiave generata: " << key << endl;
+    cout << "\nChiave generata: " << key << endl;
 
     return 0;
 }
@@ -96,26 +94,20 @@ void caricaStringa(char str[], int max) {
             // Handle backspace
             if (i > 0) {
                 i--;
-                std::cout << "\b \b"; // Move cursor back, overwrite with space, and move cursor back again
+                cout << "\b \b"; // Move cursor back, overwrite with space, and move cursor back again
             }
         } else {
             // Normal character input
             str[i] = car;
             i++;
-            std::cout << car; // Echo the character
+            cout << car; // Echo the character
         }
     }
     str[i] = '\0'; // Null-terminate the string
-    std::cout << std::endl; // Print a newline character
+    cout << endl; // Print a newline character
 }
 #endif
 // End Text loading
-
-void AlfabetGeneration(int Alfabet[]) {
-    for(int i = 1; i <= MaxAlfabet; i++) {
-        Alfabet[i] = i;
-    }
-}
 
 void KeyGenerator(char key[]){
     
@@ -125,7 +117,7 @@ void KeyGenerator(char key[]){
     do{
         cin >> scelta;
         if (scelta !='y' && scelta != 'n'){ //Validation of y/n
-            cout << "Error";
+            cout << "Error: invalid input" <<endl;
         }
 
     }while(scelta !='y' && scelta != 'n'); 
@@ -142,6 +134,8 @@ void KeyGenerator(char key[]){
         }
     else{ //If not random
           do{
+            cin.ignore(); // Clean the residue in the buffer
+            cout << "Inserisci la chiave: " << endl;
             caricaStringa(key, keyLenghtMAX); // Manual loading of the key by user
             //Messagio Errore
              if (!keyValidyCheck(key)) {
@@ -183,4 +177,11 @@ bool keyValidyCheck(char keyimport[]) {
         return false;
     }
 }
- 
+
+// Alpabet
+
+void AlfabetGeneration(int Alfabet[]) {
+    for(int i = 1; i <= MaxAlfabet; i++) {
+        Alfabet[i] = i;
+    }
+}
