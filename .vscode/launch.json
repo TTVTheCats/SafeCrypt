@@ -11,7 +11,7 @@
       "cwd": "/home/thecats/Documenti/GitHub/SafeCrypt",
       "program": "/home/thecats/Documenti/GitHub/SafeCrypt/build/Debug/outDebug",
       "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
+      "miDebuggerPath": "C:\\MinGW\\share\\gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

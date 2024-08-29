@@ -1,7 +1,15 @@
 #include <iostream>
 #include <cstdlib> 
-#include <ctime>   
-#include <conio.h>
+#include <ctime> 
+
+#ifdef _WIN32
+    #include <conio.h>
+#else
+    #include <termios.h>
+    #include <unistd.h>
+#endif
+
+
 
 #define MaxAlfabet 255 // Number of alphabet character supported
 #define keyLenghtMAX 21 // Max key lenght supported
@@ -11,7 +19,7 @@ using namespace std;
 void AlfabetGeneration(int Alfabet[]); // Function to generate the alpabet (BETA)
 void KeyGenerator(char []); // Function to generate the key or make it choose at the u
 void caricaStringa(char [], int); // Text like function to write in array of char
-bool keyValidyCheck(char []);
+bool keyValidyCheck(char []); //Check 
 
 int main() {
 
@@ -40,6 +48,10 @@ int main() {
     return 0;
 }
 
+// Text loading
+
+// Windows
+#ifdef _WIN32
 void caricaStringa(char str[], int max){
     int i = 0;
     char car;
@@ -50,6 +62,54 @@ void caricaStringa(char str[], int max){
     }
     str[i] = '\0';
 }
+#endif
+
+#ifndef _WIN32
+// Unix
+char getch() {
+    struct termios oldt, newt;
+    char ch;
+
+    tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Set new terminal attributes
+
+    ch = getchar(); // Read a character
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Restore old terminal attributes
+    return ch;
+}
+
+// Function to get a line of input from the user with backspace handling
+void caricaStringa(char str[], int max) {
+    int i = 0;
+    char car;
+
+    while (i < max - 1) {
+        car = getch(); // Get a single character
+
+        if (car == '\n' || car == '\r') {
+            // End of input (Enter key)
+            break;
+        } else if (car == 127 || car == '\b') {
+            // Handle backspace
+            if (i > 0) {
+                i--;
+                std::cout << "\b \b"; // Move cursor back, overwrite with space, and move cursor back again
+            }
+        } else {
+            // Normal character input
+            str[i] = car;
+            i++;
+            std::cout << car; // Echo the character
+        }
+    }
+    str[i] = '\0'; // Null-terminate the string
+    std::cout << std::endl; // Print a newline character
+}
+#endif
+// End Text loading
 
 void AlfabetGeneration(int Alfabet[]) {
     for(int i = 1; i <= MaxAlfabet; i++) {
@@ -84,22 +144,43 @@ void KeyGenerator(char key[]){
           do{
             caricaStringa(key, keyLenghtMAX); // Manual loading of the key by user
             //Messagio Errore
+             if (!keyValidyCheck(key)) {
+                cout << "\nError: Key must be at least 10 characters long, containing at least 5 letters/symbols and 5 numbers.\n";
+            }
 
         }while(keyValidyCheck(key) == false);
     }
 }
 
-bool keyValidyCheck(char keyimport[]){
-    bool validity = false;
-    for(int i = 0; i < keyLenghtMAX; i++){
-        if (keyimport[i] <= 32 || keyimport[i] == 34 || keyimport[i] == 39 || keyimport[i] == 40 || keyimport[i] == 41 || keyimport[i] == 44 || keyimport[i] == 45 || keyimport[i] == 58 || keyimport[i] == 59 || keyimport[i] == 96 || keyimport[i] >= 123 ){
-            
-        }else{
-            validity = false;
-        }
-    }
-    return 0;
-} 
+bool keyValidyCheck(char keyimport[]) {
+    int length = 0;
+    int numCount = 0;
+    int letterOrSymbolCount = 0;
 
-//Aggiungere variabili per conto numeri e lettere in key 
-//MIN MAX caracter control
+    for(int i = 0; i < keyLenghtMAX - 1 && keyimport[i] != '\0'; i++) {
+        char c = keyimport[i];
+
+        // check invalid characters
+        if (c <= 32 || c == 34 || c == 39 || c == 40 || c == 41 || 
+            c == 44 || c == 45 || c == 58 || c == 59 || c == 96 || c >= 123) {
+            return false;
+        }
+
+         // Count numbers
+        if (c >= '0' && c <= '9') {
+            numCount++;
+        } else { // Count letters and symbols
+            letterOrSymbolCount++;
+        }
+
+        length++;
+    }
+
+    // Key validit ycheck
+    if (length >= 10 && numCount >= 5 && letterOrSymbolCount >= 5) {
+        return true;
+    } else {
+        return false;
+    }
+}
+ 
