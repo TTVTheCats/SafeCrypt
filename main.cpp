@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cstdio>   // for FILE, fopen, fgets, fclose
 
 
 #ifdef _WIN32
@@ -14,6 +15,7 @@
 #define keyLenghtMAX 21 // Max key length supported
 #define ALPHABET_START 20000
 #define ALPHABET_END 50000
+#define MAXPATH 250
 
 using namespace std;
 
@@ -23,6 +25,9 @@ void KeyGenerator(char key[]); // Function to generate or input the key
 void caricaStringa(char str[], int max); // Function to load a string from the user
 bool keyValidyCheck(char key[]); // Validate the key
 void CreateNumericKey(const char key[], const int Alfabet[], int charToNum[], char numericKey[], int& numericKeyLen); // Convert key to numeric based on alphabet
+void pathTaker(char []);
+bool pathVerifier(char []);
+int charTaker(char []);
 
 void FirstCryptation();
 
@@ -35,6 +40,9 @@ int main() {
     int charToNum[128]; // Array to map ASCII values to their numeric equivalents
     char numericKey[keyLenghtMAX * 6]; // To store the numeric key, considering digits could be 5 or more digits
     int numericKeyLen = 0; // Length of the numeric key
+
+    // NEW
+    char filePath[MAXPATH];
 
     // Generate alphabet
     AlfabetGeneration(Alfabet, charToNum);
@@ -53,7 +61,11 @@ int main() {
     }
     cout << endl;
 
-//  FirstCryptation();
+    pathTaker(filePath);
+
+    //  FirstCryptation();
+
+    charTaker(filePath);
 
     return 0;
 }
@@ -233,3 +245,75 @@ void CreateNumericKey(const char key[], const int Alfabet[], int charToNum[], ch
 
 //-----------------------------------------------------------------------------------------------------------------
 
+/*
+    FILE *punt; //dichiarazione di una variabile che ci permetterà di gestire il file
+    //filename è il path del percorso che voglio aprire, il file deve essere perforza nella cartella del programma.
+    //r = solo leggere senza scrivere, se il file non esiste non viene creato - //w = solo scrivere e non leggere, se il file non esiste viene creato, se esiste il contenuto preesistente viene perso
+    //r+ = leggere e scrivere - w+ = leggere e scrivere //Cambia il controllo se il file esiste o no e che se non esiste lo crea o non lo crea e che se esiste il contenuto preesistente viene perso
+    //a = accodare
+    punt = fopen("esempio.dat", ""); //APERTURA FILE
+    if (punt != NULL) //per verificare che il file sia stato aperto con successo
+    {
+         //C'è tutta la logica di gestione del file...
+         cout << "File aperto con successo" <<endl;
+         fclose(punt); //CHIUSURA FILE - ricordare di metterlo sempre
+    }
+    else {
+    cout << "Errore nell'apertura del file";
+    }
+    //se nel debugger con r viene fuori in punt 0x0 questo significa che non trova il file e che non viene creato, non dovrebbero esserci molti caratteri, questo perché r non crea file
+    //anche w puo dare 0x0 nel caso che il file sia in sola lettura o cmq che non è riuscito ad aprire il file in scrittura
+    return 0;
+
+*/
+
+void pathTaker(char path[]){
+
+    cout << "Insert the file path: ";
+    cin.ignore(); // Ignora eventuali caratteri lasciati in ingresso standard
+    cin.getline(path, MAXPATH); // Acquisisce il percorso del file come input
+
+    pathVerifier(path);
+
+}
+//1. Prende la lettera -> La mette in una variabile -> la trasforma -> cancella la lettera presa in precedenza -> rimpiazza con la versione criptatata ($)
+
+bool pathVerifier(char path[]){
+    FILE *punt = fopen(path, "r+");
+    if(punt != NULL){
+        cout << "Succesfully opened the file" <<endl;
+        return true;
+    }else{
+        cout << "Error the file dosen't exist!" <<endl;
+        return false;
+    }
+}
+
+
+/*
+1. Controlla prima tutte le lettere [ X ]
+2. Fa la conversione su una copia prima se senza errori [ ]
+*/
+
+/* Al momento non funzionate
+
+int charTaker(char path[]) {
+    // Apri il file in modalità lettura
+    FILE *file = fopen(path, "rb");
+    if (file == NULL) {
+        cout << "Errore nell'apertura del file!" << endl;
+        return 1; // Restituisce un errore se il file non può essere aperto
+    }
+
+    char c;
+    // Leggi ogni carattere fino alla fine del file
+    while ((c = fgetc(file)) != EOF) {
+        // Stampa il carattere letto (puoi modificarlo per memorizzarlo altrove)
+         cout << (char)c;
+    }
+
+    fclose(file); // Chiudi il file dopo averlo letto
+    return 0; // Successo
+}
+
+*/
