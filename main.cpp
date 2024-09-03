@@ -1,6 +1,7 @@
 #include <iostream>
-#include <cstdlib> 
-#include <ctime> 
+#include <cstdlib>
+#include <ctime>
+
 
 #ifdef _WIN32
     #include <conio.h>
@@ -9,39 +10,50 @@
     #include <unistd.h>
 #endif
 
-#define MaxAlfabet 255 // Number of alphabet character supported
-#define keyLenghtMAX 21 // Max key lenght supported
+#define MaxAlfabet 95 // Number of characters in printable ASCII range
+#define keyLenghtMAX 21 // Max key length supported
+#define ALPHABET_START 20000
+#define ALPHABET_END 50000
 
 using namespace std;
 
-void AlfabetGeneration(int Alfabet[]); // Function to generate the alpabet (BETA)
-void KeyGenerator(char []); // Function to generate the key or make it choose at the u
-void caricaStringa(char [], int); // Text like function to write in array of char
-bool keyValidyCheck(char []); // Check 
+// Function declarations
+void AlfabetGeneration(int Alfabet[], int charToNum[]); // Generate alphabet values and mappings
+void KeyGenerator(char key[]); // Function to generate or input the key
+void caricaStringa(char str[], int max); // Function to load a string from the user
+bool keyValidyCheck(char key[]); // Validate the key
+void CreateNumericKey(const char key[], const int Alfabet[], int charToNum[], char numericKey[], int& numericKeyLen); // Convert key to numeric based on alphabet
+
+void FirstCryptation();
 
 int main() {
-
     srand(time(NULL));
 
-    // Variabili Temp
+    // Temp variables
     char key[keyLenghtMAX];
-
-    // Alfabeto
     int Alfabet[MaxAlfabet];
+    int charToNum[128]; // Array to map ASCII values to their numeric equivalents
+    char numericKey[keyLenghtMAX * 6]; // To store the numeric key, considering digits could be 5 or more digits
+    int numericKeyLen = 0; // Length of the numeric key
 
-    AlfabetGeneration(Alfabet);
+    // Generate alphabet
+    AlfabetGeneration(Alfabet, charToNum);
 
-    /*
-    // Print the array
-    for(int i = 1; i <= MaxAlfabet; i++) {
-        cout << Alfabet[i] << " ";
-    }
-    */ 
-    
     cout << "Key randomica? [y/n]" <<endl;
     KeyGenerator(key);
 
     cout << "\nChiave generata: " << key << endl;
+
+    // Convert the key to a numeric key based on the generated alphabet
+    CreateNumericKey(key, Alfabet, charToNum, numericKey, numericKeyLen);
+
+    cout << "Chiave numerica: ";
+    for (int i = 0; i < numericKeyLen; i++) {
+        cout << numericKey[i];
+    }
+    cout << endl;
+
+//  FirstCryptation();
 
     return 0;
 }
@@ -50,11 +62,10 @@ int main() {
 
 // Windows
 #ifdef _WIN32
-void caricaStringa(char str[], int max){
+void caricaStringa(char str[], int max) {
     int i = 0;
     char car;
-    while (i < max - 1 && (car = getche()) != '\r')
-    {
+    while (i < max - 1 && (car = getche()) != '\r') {
         str[i] = car;
         i++;
     }
@@ -68,14 +79,14 @@ char getch() {
     struct termios oldt, newt;
     char ch;
 
-    tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
+    tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Set new terminal attributes
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-    ch = getchar(); // Read a character
+    ch = getchar();
 
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Restore old terminal attributes
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     return ch;
 }
 
@@ -85,103 +96,140 @@ void caricaStringa(char str[], int max) {
     char car;
 
     while (i < max - 1) {
-        car = getch(); // Get a single character
+        car = getch();
 
         if (car == '\n' || car == '\r') {
-            // End of input (Enter key)
             break;
         } else if (car == 127 || car == '\b') {
-            // Handle backspace
             if (i > 0) {
                 i--;
-                cout << "\b \b"; // Move cursor back, overwrite with space, and move cursor back again
+                cout << "\b \b";
             }
         } else {
-            // Normal character input
             str[i] = car;
             i++;
-            cout << car; // Echo the character
+            cout << car;
         }
     }
-    str[i] = '\0'; // Null-terminate the string
-    cout << endl; // Print a newline character
+    str[i] = '\0';
+    cout << endl;
 }
 #endif
 // End Text loading
 
-void KeyGenerator(char key[]){
-    
+void KeyGenerator(char key[]) {
     char scelta;
     int randomValue;
-    
-    do{
+
+    do {
         cin >> scelta;
-        if (scelta !='y' && scelta != 'n'){ //Validation of y/n
-            cout << "Error: invalid input" <<endl;
+        if (scelta != 'y' && scelta != 'n') {
+            cout << "Error: invalid input" << endl;
         }
+    } while (scelta != 'y' && scelta != 'n');
 
-    }while(scelta !='y' && scelta != 'n'); 
-
-    if (scelta == 'y'){        
-        for (int i = 0; i < keyLenghtMAX; i++) {
-            do{
-                randomValue = rand() % (122 - 33 + 1) + 33; // Random value between 33 and 122
-            }while (randomValue == 34 || randomValue == 39 || randomValue == 40 || randomValue == 41 || randomValue == 44 || randomValue == 45 || randomValue == 58 || randomValue == 59 || randomValue == 96 );
+    if (scelta == 'y') {
+        for (int i = 0; i < keyLenghtMAX - 1; i++) {
+            do {
+                randomValue = rand() % (126 - 32 + 1) + 32; // Random value between 32 and 126
+            } while (randomValue == 34 || randomValue == 39 || randomValue == 40 || randomValue == 41 || randomValue == 44 || randomValue == 45 || randomValue == 58 || randomValue == 59 || randomValue == 96);
             key[i] = char(randomValue); // Convert int to char
         }
-            
-        key[keyLenghtMAX] = '\0';
-        }
-    else{ //If not random
-          do{
-            cin.ignore(); // Clean the residue in the buffer
-            cout << "Inserisci la chiave: " << endl;
+        key[keyLenghtMAX - 1] = '\0';
+    } else {
+        cin.ignore(); // Clean the residue in the buffer
+        cout << "Inserisci la chiave: " << endl;
+        do {
             caricaStringa(key, keyLenghtMAX); // Manual loading of the key by user
-            //Messagio Errore
-             if (!keyValidyCheck(key)) {
+            if (!keyValidyCheck(key)) {
                 cout << "\nError: Key must be at least 10 characters long, containing at least 5 letters/symbols and 5 numbers.\n";
             }
-
-        }while(keyValidyCheck(key) == false);
+        } while (!keyValidyCheck(key));
     }
 }
 
-bool keyValidyCheck(char keyimport[]) {
+bool keyValidyCheck(char key[]) {
     int length = 0;
     int numCount = 0;
     int letterOrSymbolCount = 0;
 
-    for(int i = 0; i < keyLenghtMAX - 1 && keyimport[i] != '\0'; i++) {
-        char c = keyimport[i];
+    for (int i = 0; i < keyLenghtMAX - 1 && key[i] != '\0'; i++) {
+        char c = key[i];
 
-        // check invalid characters
         if (c <= 32 || c == 34 || c == 39 || c == 40 || c == 41 || 
-            c == 44 || c == 45 || c == 58 || c == 59 || c == 96 || c >= 123) {
+            c == 44 || c == 45 || c == 58 || c == 59 || c == 96 || c >= 127) {
             return false;
         }
 
-         // Count numbers
         if (c >= '0' && c <= '9') {
             numCount++;
-        } else { // Count letters and symbols
+        } else {
             letterOrSymbolCount++;
         }
 
         length++;
     }
 
-    // Key validit ycheck
-    if (length >= 10 && numCount >= 5 && letterOrSymbolCount >= 5) {
-        return true;
-    } else {
-        return false;
+    return length >= 10 && numCount >= 5 && letterOrSymbolCount >= 5;
+}
+
+void AlfabetGeneration(int Alfabet[], int charToNum[]) {
+    int startValue = ALPHABET_START;
+    int endValue = ALPHABET_END;
+    int range = endValue - startValue;
+    int baseValue = startValue;
+
+    for (int i = 32; i <= 126; i++) { // Printable ASCII range
+        if (i == 34 || i == 39 || i == 40 || i == 41 || i == 44 || i == 45 || i == 58 || i == 59 || i == 96) {
+            continue; // Skip certain characters
+        }
+
+        int offset = (i - 32) * range / (126 - 32); // Offset calculation for uniform distribution
+        Alfabet[i - 32] = baseValue + offset;
+        charToNum[i] = Alfabet[i - 32]; // Map ASCII value to numeric value
     }
 }
 
-// Alpabet
+void CreateNumericKey(const char key[], const int Alfabet[], int charToNum[], char numericKey[], int& numericKeyLen) {
+    numericKeyLen = 0;
 
-void AlfabetGeneration(int Alfabet[]) {
-    for(int i = 1; i <= MaxAlfabet; i++) {
-        Alfabet[i] = i;
+    for (int i = 0; i < keyLenghtMAX - 1 && key[i] != '\0'; i++) {
+        char c = key[i];
+        if (c >= '0' && c <= '9') {
+            numericKey[numericKeyLen++] = c; // Append numbers as is
+        } else if (c >= 32 && c <= 126) {
+            int index = c - 32;
+            if (index >= 0 && index < MaxAlfabet) {
+                int value = charToNum[c];
+                // Convert value to string and append to numericKey
+                char temp[6]; // Temporary buffer for digits (5 digits + null terminator)
+                int pos = 0;
+
+                // Convert integer value to characters
+                if (value == 0) {
+                    temp[pos++] = '0';
+                } else {
+                    while (value > 0) {
+                        temp[pos++] = '0' + (value % 10);
+                        value /= 10;
+                    }
+                    // Reverse the digits
+                    for (int j = 0; j < pos / 2; j++) {
+                        char t = temp[j];
+                        temp[j] = temp[pos - 1 - j];
+                        temp[pos - 1 - j] = t;
+                    }
+                }
+
+                // Append the digits to numericKey
+                for (int j = 0; j < pos; j++) {
+                    numericKey[numericKeyLen++] = temp[j];
+                }
+            }
+        }
     }
+    numericKey[numericKeyLen] = '\0'; // Null-terminate the numeric key
 }
+
+//-----------------------------------------------------------------------------------------------------------------
+
